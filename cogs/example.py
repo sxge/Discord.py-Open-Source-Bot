@@ -37,7 +37,6 @@ class exampleCog(commands.Cog):
 
     # You can do as many Commands as you wish in here.
 
-
 # This ends our Cog Setup function
 def setup(bot):
     # Here we add the Cog to our bot so we can call it in main.py
