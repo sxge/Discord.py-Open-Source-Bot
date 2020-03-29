@@ -93,7 +93,7 @@ async def status_chng():
 
     while not bot.is_closed():
         await bot.change_presence(activity=discord.Game(name="Hello! I am a Open Source Bot"))
-        await asyncio.sleep(3)
+        await asyncio.sleep(30)
         # Replace 30 with the Amount of Seconds you want the Bot to change its Status
         await bot.change_presence(activity=discord.Game(name="I was developed by sxge#2868"))
 
