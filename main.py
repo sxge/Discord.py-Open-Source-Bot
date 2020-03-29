@@ -4,7 +4,9 @@ import os
 import random
 import asyncio
 
-
+# Needed only for our Levelsystem
+if not os.path.exists('users.json'):
+    open('users.json', 'w').close()
 
 """
 If you encounter any Problems with adding new Stuff, consider checking the Official Documentation of Discord.py
@@ -45,7 +47,12 @@ bot.remove_command("help")
 
 # Let us find all Cogs we have added. Seperate your Cogs with a ","
 initial_extensions = ['cogs.example',
-                      'cogs.members'] 
+                      'cogs.members',
+                      'cogs.levelsystem',
+                      'cogs.cmd',
+                      'cogs.mod',
+                      'cogs.misc'
+                      ] 
 
 # Here we actually load all Cogs we added above
 if __name__ == '__main__':
@@ -70,7 +77,9 @@ async def on_ready():
     print(f'\n\n Logged in! \n -> Bot-Name: {bot.user.name} \n -> Bot-ID {bot.user.id}\n -> Discord.py Version: {discord.__version__}')
     await bot.change_presence(status=discord.Status.online, activity=discord.Game(f"Starting..."))
     print(f'Hello! I am now fully booted up and ready to use')
-    global st_datetime
+    print("Thanks to the 'Progress' Discord-Server for helping me whenever i needed help coding!")
+    print("Invite-link: https://discord.gg/HDSjxfu")
+    print("Written by sxge#2868")
 
 
 #============================================
@@ -91,9 +100,18 @@ async def status_chng():
 bot.loop.create_task(status_chng())
 
 
-# Last but not least, the most important Part. The Bot Token. 
-# !!! NEVER EVER GIVE IT TO SOMEONE ELSE !!! You can get your Discord Account banned when other People have your token.
+
+
+
+# Last but not least, the most important Part. The Bot Token.
+# /--------------------------------------------\
+# |                WARNING:                    |
+# |!!! NEVER EVER GIVE IT TO SOMEONE ELSE !!!  |
+# \____________________________________________/
+# You can get your Discord Account banned when other People have your token.
 # Just dont give it to someone else ok? Promise me that. If you do, dont cry if your Discord Account gets banned. You've been warned
+
+
 
 # Anyway, since sometimes you might need help with your main.py file and if you post a screenshort or send the whole file to someone else,
 # you might forget about the token. So for Security we load it from a seperate Text file called token.txt
