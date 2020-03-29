@@ -7,7 +7,7 @@ Feel free to suggest any Changes or new features
 If you need help, contact me on Discord: sxge#2868
 
 CREDITS:
--> sxge#2868 (Idea for the project) (Me)
 
+-> sxge#2868 (Idea for the project) (Me)
 
 -> Progress Discord for helping me with coding (https://discord.gg/HDSjxfu)
