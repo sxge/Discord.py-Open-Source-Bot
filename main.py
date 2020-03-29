@@ -68,6 +68,7 @@ if __name__ == '__main__':
 @bot.event
 async def on_message(message):
     await bot.process_commands(message)
+    print("Written by sxge#2868")
 
 # With this we make the Bot Start
 @bot.event
