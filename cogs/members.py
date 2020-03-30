@@ -60,18 +60,7 @@ class MembersCog(commands.Cog):
         iServer.add_field(name="Users online: ", value=" {:,} / {:,} Users are online".format(memberOnline, memberCount), inline=False)
 
         await ctx.send(embed=iServer)
-
-    # Lets get a Users Profile picture
-    @commands.command()
-    @commands.guild_only()
-    async def avatar(self, ctx, *, user: discord.Member = None):
-        await ctx.message.delete()
-        if user is None:
-            user = ctx.author
-
-        avatar = discord.Embed(colour=discord.Colour.dark_blue, timestamp=ctx.message.created_at)
-        avatar.add_field(name=f"Avatar of: {user.name}", value=f"{user.avatar_url_as(size=1024)}")
-        ctx.send(embed=avatar)
+        
 
     # And who does not want to know more about this mysterius Bot huh?
     @commands.command()
