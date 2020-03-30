@@ -15,8 +15,7 @@ class miscCog(commands.Cog):
         await ctx.message.delete()
         if nbytes not in range(3, 32):
             return await ctx.send("Error!")
-        if hasattr(ctx, 'guild') and ctx.guild is not None:
-            await ctx.send(f"**I'll send you your random Password in a Second dear {ctx.author.name}**")
+        await ctx.send(f"**I'll send you your random Password in a Second dear {ctx.author.name}**")
         await ctx.author.send(f"🎁 **Here is your Password:** 🎁\n{secrets.token_urlsafe(nbytes)}")
 
     # Incase the user has private Messages set to only Friends
