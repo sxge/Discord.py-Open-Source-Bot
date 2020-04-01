@@ -70,10 +70,10 @@ class modCog(commands.Cog):
             await ctx.send(embed=norole)
 
     @mute.error
-    async def mute_error(self, ctx):
-    if isinstance(error, commands.MissingPermissions):
-        embed = discord.Embed(description="You don't have permission to use this command.")
-        await ctx.send(embed=embed)
+    async def mute_error(self, ctx, error):
+        if isinstance(error, commands.MissingPermissions):
+            embed = discord.Embed(description="You don't have permission to use this command.")
+            await ctx.send(embed=embed)
 
 
     # Deletes x Amount of Messages in the Channel
