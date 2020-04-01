@@ -11,55 +11,31 @@ class modCog(commands.Cog):
         self.bot = bot
 
 
-    # Simply bans a User
-    @commands.command()
+
+    @commands.command(no_pm=True)
     @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
-    async def ban(self, ctx, member: discord.Member = None, *reason):
-        await ctx.message.delete()
-        member = ctx.author if not member else member
-        if member is not None:
-            if reason:
-                reason = ' '.join(reason)
-            else:
-                reason = None
-            await member.ban(reason=reason)
+    async def ban(self, ctx, member: discord.Member, *, reason ="No Reason set"):
+        embed = discord.Embed(
+            title="Ban",
+            description=f"{member.name} was banned for **{reason}**.",
+        )
+        await ctx.guild.ban(member, reason=reason)
+        await ctx.send(embed=embed)
 
-            ban = discord.Embed(colour=discord.Colour.dark_red(), timestamp=ctx.message.created_at)
+    @ban.error
+    async def ban_error(self, ctx, error):
+        if isinstance(error, commands.BadArgument):
+            await ctx.send("It seems like the User already left the Server.")
+        if isinstance(error, commands.CommandInvokeError):
+            await ctx.send("Cant ban User")
+        if isinstance(error, commands.MissingPermissions):
+            await ctx.send("Sorry but you don't have permissions to do that.")
 
-            ban.set_author(name="Created Ban Successfull", icon_url=ctx.author.avatar_url)
-            ban.add_field(name="Banned User: ", value=member)
-            ban.add_field(name="Banned by: ", value=reason)
-
-            await ctx.send(embed=ban, delete_after=15)
-        else:
-            await ctx.send('**:no_entry:** No User tagged!', delete_after=15)
-
-    # Removes the Ban from the User
-    @commands.command()
-    @commands.has_permissions(ban_members=True)
-    @commands.bot_has_permissions(ban_members=True)
-    async def removeban(self, ctx, *, member):
-        ban_list = await ctx.guild.bans()
-        member_name, member_discriminator = member.split('#')
-
-        for ban_entry in ban_list:
-            user = ban_entry.user
-
-            if (user.name, user.discriminator) == (member_name, member_discriminator):
-                await ctx.guild.unban(user)
-
-                unban = discord.Embed(colour=discord.Colour.green(), timestamp=ctx.message.created_at)
-
-                unban.set_author(name="Ban Removed", icon_url=ctx.author.avatar_url)
-                unban.add_field(name="Ban removed from User: ", value=user)
-                unban.add_field(name="Ban was removed by: ", value=ctx.message.author)
-
-                await ctx.send(embed=unban, delete_after=15)
 
     # List all Bans in the Guild
     @commands.command()
-    @commands.has_permissions(kick_members=True)
+    @commands.has_permissions(ban_members=True)
     @commands.bot_has_permissions(ban_members=True)
     async def listbans(self, ctx):
         users = await ctx.guild.bans()
@@ -80,63 +56,25 @@ class modCog(commands.Cog):
         else:
             await ctx.send('**:negative_squared_cross_mark:** No banned Users found!')
 
-    # Kicks a User from the Guild
+
     @commands.command()
     @commands.guild_only()
-    @commands.has_permissions(kick_members=True)
-    @commands.bot_has_permissions(kick_members=True)
-    async def kick(self, ctx, member: discord.Member):
-        await ctx.message.delete()
-        await member.kick()
-        kick = discord.Embed(colour=discord.Colour.blue(), timestamp=ctx.message.created_at)
-
-        kick.add_field(name="Kicked User:", value=member)
-
-        await ctx.send(embed=kick)
-
-    # Adds a Role called "Muted" to the tagged User. Still requires you to setup the Role for the Channels.
-    # I will make a Set-Up command later that creates this Role automatically for you when first time running this Bot
-    @commands.command()
-    @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
     @commands.bot_has_permissions(manage_roles=True)
-    async def mute(self, ctx, member: discord.Member,):
-        await ctx.message.delete()
-        message = []
-        for role in ctx.guild.roles:
-            if role.name == "Muted":
-                message.append(role.name)
-        try:
-            therole = discord.Object(id=message[0])
-        except IndexError:
-            return await ctx.send("Error! Are you sure that there exists a Role named **Mute**? Remember that they are Case-Sensitive")
+    async def mute(ctx, member: discord.Member):
+        role = discord.utils.get(member.server.roles, name='Muted')
+        await member.add_roles(member, role)
+        embed = discord.Embed(description=f"**{0}** was muted by **{1}**!".format(member, ctx.message.author))
+        await member.send(embed=embed)
+        if role not in member.server.roles:
+            norole = discord.Embed(description="No Role named 'Muted' was found on the Server.")
+            await ctx.send(embed=norole)
 
-        try:
-            await member.add_roles(therole, reason="Bad behavior"(ctx.author))
-            await ctx.send("muted")
-        except Exception as e:
-            await ctx.send(e)
+    @mute.error
+    async def mute_error(self, ctx)
+    if isinstance(error, commands.MissingPermissions):
+        embed = discord.Embed(description="You don't have permission to use this command.")
+        await ctx.send(embed=embed)
 
-    # Removes the "Muted" ROle
-    @commands.command()
-    @commands.guild_only()
-    @commands.has_permissions(manage_roles=True)
-    @commands.bot_has_permissions(manage_roles=True)
-    async def unmute(self, ctx, member: discord.Member):
-        message = []
-        for role in ctx.guild.roles:
-            if role.name == "Mute":
-                message.append(role.id)
-        try:
-            therole = discord.Object(id=message[0])
-        except IndexError:
-            return await ctx.send("Error! Are you sure that there exists a Role named **Mute**? Remember that they are Case-Sensitive")
-
-        try:
-            await member.remove_roles(therole, reason="Bad behavior"(ctx.author))
-            await ctx.send("unmuted")
-        except Exception as e:
-            await ctx.send(e)
 
     # Deletes x Amount of Messages in the Channel
     @commands.command()
@@ -160,6 +98,7 @@ class modCog(commands.Cog):
         if isinstance(error, commands.MissingRequiredArgument):
             await ctx.message.delete()
             await ctx.channel.send("How should i know how many Messages you want me to delete???")
+
 
     # Repeats everything you wrote after "say"
     @commands.command()
