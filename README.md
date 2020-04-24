@@ -1,6 +1,6 @@
 # Disord.py-Open-Source-Bot
 This is a Open Source Discord Bot that is using Discord.py 
-You're free to use this Bot for your Discord Server, take out some code, but please just give me the credit for my work.
+You're free to use this Bot for your Discord Server, take out some code, but you have to give me the credit for my work.
 
 Feel free to suggest any Changes or new features
 
