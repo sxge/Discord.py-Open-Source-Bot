@@ -1,8 +1,6 @@
 from discord.ext import commands
 import discord
-import psutil
-import os
-import time
+
 
 class cmdCog(commands.Cog):
     def __init__(self, bot):
@@ -61,23 +59,28 @@ class cmdCog(commands.Cog):
 
         await ctx.send(embed=mod)
 
-    @commands.command()
-    @commands.guild_only()
-    async def botinfo(self, ctx):
-        await ctx.message.delete()
-        ramUsage = self.process.memory_full_info().rss / 1024**2
-        avgmembers = round(len(self.bot.users) / len(self.bot.guilds))
+    @help.command(name="misc", case_insensitive=True)
+    async def misc(self, ctx):
 
-        binfo = discord.Embed(colour=discord.Colour.dark_teal(), timestamp=ctx.message.created_at)
+        misc = discord.Embed(description="**Misc**", colour=discord.Colour.orange())
+        misc.add_field(name="password", value="Generate and send you a Password in your PM's", inline=False)
+        misc.add_field(name="poll [xyz]", value="Starts a Poll", inline=False)
+        misc.add_field(name="random [flip], [choice], [user]", value="Basic Random Command", inline=False)
+        misc.add_field(name="coinflip", value="Throws a Coin", inline=False)
+        misc.add_field(name="avatar", value="Gets the Avatar of a User", inline=False)
+        
+        await ctx.send(embed=misc)
 
-        binfo.set_footer(text="Bot-Info", icon_url=ctx.author.avatar_url)
-        binfo.add_field(name="Bot-Name: ", value=f"{self.bot.user.name}", inline=False)
-        binfo.add_field(name="Discord.py Version: ", value=f"{discord.__version__}", inline=False)
-        binfo.add_field(name="Bot-ID: ", value=f"{self.bot.user.id}", inline=False)
-        binfo.add_field(name="RAM Usage: ", value=f"{ramUsage:.2f} MB", inline=True)
-        binfo.add_field(name="Joined Servers: ", value=f"{len(ctx.bot.guilds)} ( avg: {avgmembers} users/server )", inline=False)
+    @help.command(name="music", case_insensitive=True)
+    async def music(self, ctx):
+        music = discord.Embed(description="**Music", colour=discord.Colour.magenta())
+        music.add_field(name="join [channelname]", value="Makes the Bot join the Voice Channel", inline=False)
+        music.add_field(name="yt [url]", value="Searches and plays a YouTube Audio", inline=False)
+        music.add_field(name="stream [url]", value="Streams a Audio from YouTube", inline=False)
+        music.add_field(name="volume [0-100]", value="Sets the Voulme of the Bot", inline=False)
+        music.add_field(name="stop", value="Let the Bot stop playing and leave the Voice Channel", inline=False)
+        await ctx.send(embed=music)
 
-        await ctx.send(embed=binfo)
 
 
 def setup(bot):
