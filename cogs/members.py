@@ -1,6 +1,8 @@
 import discord
 from discord.ext import commands
-
+import psutil
+import os
+import time
 
 class MembersCog(commands.Cog):
     def __init__(self, bot):
@@ -13,13 +15,10 @@ class MembersCog(commands.Cog):
     async def userinfo(self, ctx, member: discord.Member = None):
         await ctx.message.delete()
         member = ctx.author if not member else member
-        roles = [role for role in member.roles]
 
         user = discord.Embed(colour=discord.Colour.purple(), timestamp=ctx.message.created_at)
 
-        user.set_author(name=f"User Profil - {member}")
         user.set_thumbnail(url=member.avatar_url)
-        user.set_footer(text=f"Called by: {ctx.author}", icon_url=ctx.author.avatar_url)
 
         user.add_field(name="ID:", value=member.id, inline=False)
         user.add_field(name="Server Nickname:", value=member.display_name, inline=False)
@@ -51,7 +50,7 @@ class MembersCog(commands.Cog):
 
         iServer = discord.Embed(colour=discord.Colour.blue(), timestamp=ctx.message.created_at)
 
-        iServer.set_author(name=server.name, icon_url=server.icon_url, )
+        iServer.set_author(name=server.name, icon_url=server.icon_url)
         iServer.set_thumbnail(url=server.icon_url)
         iServer.add_field(name="Server ID: ", value=server.id, inline=False)
         iServer.add_field(name="Members: ", value=server.member_count, inline=False)
@@ -60,19 +59,23 @@ class MembersCog(commands.Cog):
         iServer.add_field(name="Users online: ", value=" {:,} / {:,} Users are online".format(memberOnline, memberCount), inline=False)
 
         await ctx.send(embed=iServer)
-        
 
-    # And who does not want to know more about this mysterius Bot huh?
+    # And who doesn't want to know more about this mysterius Bot huh?
     @commands.command()
     @commands.guild_only()
     async def botinfo(self, ctx):
         await ctx.message.delete()
+        ramUsage = self.process.memory_full_info().rss / 1024**2
+        avgmembers = round(len(self.bot.users) / len(self.bot.guilds))
+
         binfo = discord.Embed(colour=discord.Colour.dark_teal(), timestamp=ctx.message.created_at)
 
         binfo.set_footer(text="Bot-Info", icon_url=ctx.author.avatar_url)
         binfo.add_field(name="Bot-Name: ", value=f"{self.bot.user.name}", inline=False)
         binfo.add_field(name="Discord.py Version: ", value=f"{discord.__version__}", inline=False)
         binfo.add_field(name="Bot-ID: ", value=f"{self.bot.user.id}", inline=False)
+        binfo.add_field(name="RAM Usage: ", value=f"{ramUsage:.2f} MB", inline=True)
+        binfo.add_field(name="Joined Servers: ", value=f"{len(ctx.bot.guilds)} ( avg: {avgmembers} users/server )", inline=False)
 
         await ctx.send(embed=binfo)
 
