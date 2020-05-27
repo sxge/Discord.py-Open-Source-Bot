@@ -51,7 +51,8 @@ initial_extensions = ['cogs.example',
                       'cogs.levelsystem',
                       'cogs.cmd',
                       'cogs.mod',
-                      'cogs.misc'
+                      'cogs.misc',
+                      'cogs.voice'
                       ] 
 
 # Here we actually load all Cogs we added above
