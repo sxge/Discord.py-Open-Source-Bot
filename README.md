@@ -13,7 +13,8 @@ CREDITS:
 -> Progress Discord for helping me with coding (https://discord.gg/HDSjxfu)
 
 
-Disclaimer: The Code is 100% working, i only upload working code. If you get any errors it has to be on your End. Feel free to Message me or join the Progress Discord It's far from godlike, but its ok
+Disclaimer: The Code is 100% working, i only upload working code. If you get any errors it has to be on your End. Feel free to Message me or join the Progress Discord.
+It's far from godlike, but its ok
 
 
 I'll always keep this open source and free, but if you want to Support my work you can donate me a few € with Bitcoin Cash (BCH)!
