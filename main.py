@@ -32,6 +32,10 @@ def get_prefix(bot, message):
     return commands.when_mentioned_or(*prefixes)(bot, message)
 
 
+async def create_db_pool():
+    bot.pg_con = await asyncpg.create_pool(database="testDB", user="postgres", password="legochima1")
+
+bot.loop.run_until_complete(create_db_pool())
 #============================================
 #============== Define "bot" ================
 #===== Remove the default help Command ======
