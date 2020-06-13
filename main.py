@@ -52,11 +52,11 @@ bot.remove_command("help")
 # Let us find all Cogs we have added. Seperate your Cogs with a ","
 initial_extensions = ['cogs.example',
                       'cogs.members',
-                      'cogs.levelsystem',
                       'cogs.cmd',
                       'cogs.mod',
                       'cogs.misc',
-                      'cogs.voice'
+                      'cogs.levelsystem',
+                      'cogs.games'
                       ] 
 
 # Here we actually load all Cogs we added above
