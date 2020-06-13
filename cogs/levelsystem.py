@@ -106,59 +106,80 @@ class levelsystemCog(commands.Cog):
 
         # Here you can put the Amount of XP one Round of Slots costs
         if self.users[member_id]['xp'] >= 50:
-            self.users[member_id]['xp'] -= 50
+from discord.ext import commands
+import discord
+import random
+import asyncio
+
+
+class levelsystemCog(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+        
+
+
+    async def lvl_up(self, user):
+        cur_xp = user['xp']
+        cur_lvl = user['lvl']
+
+        if cur_xp >= round((3 * (cur_lvl ** 7)) / 10):
+            await self.bot.pg_con.execute("UPDATE users SET lvl = $1 WHERE user_id = $2 AND guild_id = $3", cur_lvl + 1, user['user_id'], user['guild_id'])
+            return True
         else:
-            # Ofcourse playing a Game where you can WIN XP needs to cost you XP... Who did this again?
-            await ctx.send("You need to have atleast 50XP to play Slots!")
+            return False
 
-        # I think we need some juice fruits for this to make it look good, so here we go: Strawberry, Melons, Citrons, Cherrys.... YUMMY
-        # You can use wahtever Emojies you want to use for this.
-        emojis = "🍎🍊🍐🍋🍉🍇🍓🍒"
-        a = random.choice(emojis)
-        b = random.choice(emojis)
-        c = random.choice(emojis)
 
-        slotmachine = f"**[ {a} {b} {c} ]\n{ctx.author.name}**,"
+    @commands.Cog.listener()
+    async def on_message(self, message):
+        if message.author == self.bot.user:
+            return
 
-        # This is like THE JACKPOT. THE HIGHSCORE. THE BEST. Pretty Rare to hit this, but possible. 
-        if (a == b == c):
-            self.users[member_id]['xp'] += 800
-            embed1 = discord.Embed(colour=discord.Colour.dark_gold(), timestamp=ctx.message.created_at)
+        if not message.guild:
+            return
 
-            embed1.set_footer(text=f"Played by: {ctx.author}", icon_url=ctx.author.avatar_url)
 
-            embed1.add_field(name=f"{slotmachine}", value="***WOW***, you just hit 3x the same Symbol! 🎉", inline=False)
-            embed1.add_field(name="You won 800 XP", value="🎉 🎉 🎉", inline=False)
+        author_id = str(message.author.id)
+        guild_id = str(message.guild.id)
 
-            await ctx.send(embed=embed1)
+        user = await self.bot.pg_con.fetch("SELECT * FROM users WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
+        
+        if not user:
+            await self.bot.pg_con.execute("INSERT INTO users (user_id, guild_id, lvl, xp) VALUES ($1, $2, 1, 0)", author_id, guild_id)
+        
+        
+        user = await self.bot.pg_con.fetchrow("SELECT * FROM users WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
 
-        # This is still good, but not as good as the one above.
-        # You just need to hit 2 same Symbols and you got it.
-        elif (a == b) or (a == c) or (b == c):
-            self.users[member_id]['xp'] += 200
+        if user:
+            await self.bot.pg_con.execute("UPDATE users SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + 1, author_id, guild_id)
 
-            embed2 = discord.Embed(colour=discord.Colour.dark_gold(), timestamp=ctx.message.created_at)
+   
+        if await self.lvl_up(user):
+            await message.channel.send(f"{message.author.mention} just reached level {user['lvl'] + 1}, Well done!")
 
-            embed2.set_footer(text=f"Played by: {ctx.author}", icon_url=ctx.author.avatar_url)
 
-            embed2.add_field(name=f"{slotmachine}", value="***WOW***, you achieved 200XP! 🎉", inline=False)
+    @commands.command()
+    @commands.guild_only()
+    async def level(self, ctx, member: discord.Member = None):
+        await ctx.message.delete()
+        member = ctx.author if not member else member
+        author_id = str(member.id)
+        guild_id = str(member.guild.id)
+        user = await self.bot.pg_con.fetch("SELECT * FROM users WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
 
-            await ctx.send(embed=embed2)
-
-        # This is the badest one. you actually lost it. But hey, we'll give you 20XP Still since we're crying with you :((((
+        if not user:
+            await ctx.send("This User did not achieved any level yet.")
         else:
-            self.users[member_id]['xp'] += 20
+            lvl = discord.Embed(colour=member.color, timestamp=ctx.message.created_at)
 
-            embed3 = discord.Embed(colour=discord.Colour.dark_gold(), timestamp=ctx.message.created_at)
+            lvl.set_author(name=f"Level - {member}", icon_url=self.bot.user.avatar_url)
+            lvl.set_footer(text=f"Called by: {ctx.author}", icon_url=ctx.author.avatar_url)
 
-            embed3.set_footer(text=f"Played by: {ctx.author}", icon_url=ctx.author.avatar_url)
+            lvl.add_field(name="Level", value=user[0]['lvl'])
+            lvl.add_field(name="XP", value=user[0]['xp'])
 
-            embed3.add_field(name=f"{slotmachine}", value="Not this time! 😢 Maybe you get it with the next try", inline=False)
-
-            await ctx.send(embed=embed3)
+            await ctx.send(embed=lvl)
 
 
-    # This was an idea to keep Users Active. Daily free XP? Who says no to that? I don't.
     @commands.command()
     @commands.guild_only()
     @commands.cooldown(1, 86400, commands.BucketType.user)
@@ -166,12 +187,14 @@ class levelsystemCog(commands.Cog):
         await ctx.message.delete()
 
         member = ctx.author if not member else member
-        member_id = str(member.id)
+        author_id = str(member.id)
+        guild_id = str(member.guild.id)
+        
+        user = await self.bot.pg_con.fetchrow("SELECT * FROM users WHERE user_id = $1 AND guild_id = $2", author_id, guild_id)
+        await self.bot.pg_con.execute("UPDATE users SET xp = $1 WHERE user_id = $2 AND guild_id = $3", user['xp'] + 80, author_id, guild_id)
 
-        self.users[member_id]['xp'] += 80
         await ctx.send("You recieved your daily 80XP")
 
-# Now this was much right? If you did NOT just copy + pasted this, i think you are on a good way to make a great Bot :=)
 
 
 
