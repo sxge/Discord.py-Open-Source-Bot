@@ -33,7 +33,7 @@ def get_prefix(bot, message):
 
 
 async def create_db_pool():
-    bot.pg_con = await asyncpg.create_pool(database="testDB", user="postgres", password="legochima1")
+    bot.pg_con = await asyncpg.create_pool(database="DB", user="user", password="password")
 
 bot.loop.run_until_complete(create_db_pool())
 #============================================
